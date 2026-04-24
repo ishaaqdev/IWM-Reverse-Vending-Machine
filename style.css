@@ -327,7 +327,7 @@ section { padding: 6rem 2.5rem; max-width: 1200px; margin: 0 auto; }
 
 /* VIDEO SECTION */
 .video-wrapper {
-  margin-top: 2.5rem; border-radius: 12px; overflow: hidden;
+  margin: 2.5rem auto 0; border-radius: 12px; overflow: hidden;
   border: 1px solid var(--border);
   box-shadow: 0 0 40px rgba(10,132,255,0.06);
   max-width: 800px; background: #000;
