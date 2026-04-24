@@ -4,7 +4,7 @@
 
 Firmware and documentation for a Reverse Vending Machine built as part of the 3rd Semester ISE Engineering program. Incubated through the college innovation program and awarded the JVTM Prize. Build cost: approximately Rs. 15,000.
 
-🌐 **[Live Project Page](https://ishaaqdev.github.io/IWM-Reverse-Vending-Machine/docs/)**
+🌐 **[Live Project Page](https://ishaaqdev.github.io/IWM-Reverse-Vending-Machine/)**
 
 ---
 
@@ -31,10 +31,6 @@ A user inserts an empty PET bottle into the intake slot. The machine validates i
 
 ```
 .
-├── docs/                          # Project landing page (GitHub Pages)
-│   ├── index.html
-│   └── style.css
-│
 ├── hardware/
 │   ├── IWM_RVM_Circuit_schematic.png
 │   └── iwm_rvm_system_flowchart.svg
@@ -46,6 +42,8 @@ A user inserts an empty PET bottle into the intake slot. The machine validates i
 ├── src/
 │   └── main.ino                   # Arduino firmware
 │
+├── index.html                     # Project landing page
+├── style.css
 ├── BOM.md                         # Bill of Materials
 ├── IWM_RVM_Technical_Reference.pdf
 ├── LICENSE                        # MIT
