@@ -4,6 +4,21 @@
 
 Firmware and documentation for a Reverse Vending Machine built as part of the 3rd Semester ISE Engineering program. Incubated through the college innovation program and awarded the JVTM Prize. Build cost: approximately Rs. 15,000.
 
+🌐 **[Live Project Page](https://ishaaqdev.github.io/IWM-Reverse-Vending-Machine/docs/)**
+
+---
+
+## Tech Stack
+
+![Arduino](https://img.shields.io/badge/Arduino-00979D?style=for-the-badge&logo=Arduino&logoColor=white)
+![C++](https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
+![AVR](https://img.shields.io/badge/AVR-ED1C24?style=for-the-badge&logo=atmel&logoColor=white)
+![L298N](https://img.shields.io/badge/L298N-FF6F00?style=for-the-badge)
+![HC--SR04](https://img.shields.io/badge/HC--SR04-D32F2F?style=for-the-badge)
+![HX711](https://img.shields.io/badge/HX711-7B1FA2?style=for-the-badge)
+![Thermal Printer](https://img.shields.io/badge/Thermal_Printer-00796B?style=for-the-badge)
+![I2C LCD](https://img.shields.io/badge/I2C_LCD-283593?style=for-the-badge)
+
 ---
 
 ## Overview
@@ -15,33 +30,26 @@ A user inserts an empty PET bottle into the intake slot. The machine validates i
 ## Repository Structure
 
 ```
-D:.
-|   BOM.md
-|   IWM_RVM_Technical_Reference.pdf
-|   LICENSE
-|   README.md
-|   structure.txt
-|
-+---hardware
-|       IWM_RVM_Circuit_Diagram.html
-|       IWM_RVM_Circuit_schematic.png
-|       iwm_rvm_system_flowchart.svg
-|
-+---Media
-|   +---showcase images
-|   |       rvm1.jpeg
-|   |       rvm2.jpeg
-|   |       rvm3.jpeg
-|   |       rvm4.jpeg
-|   |       rvm5.jpeg
-|   |       rvm 5.jpeg
-|   |       rvm 6.jpeg
-|   |
-|   \---showcase mp3
-|           rvm Demo cardboard.mp4
-|
-\---src
-        main.ino
+.
+├── docs/                          # Project landing page (GitHub Pages)
+│   ├── index.html
+│   └── style.css
+│
+├── hardware/
+│   ├── IWM_RVM_Circuit_schematic.png
+│   └── iwm_rvm_system_flowchart.svg
+│
+├── Media/
+│   ├── showcase images/           # Build photos (7 images)
+│   └── showcase mp4/              # Demo video
+│
+├── src/
+│   └── main.ino                   # Arduino firmware
+│
+├── BOM.md                         # Bill of Materials
+├── IWM_RVM_Technical_Reference.pdf
+├── LICENSE                        # MIT
+└── README.md
 ```
 
 ---
@@ -184,6 +192,13 @@ At session end (button press), the thermal printer issues a formatted 58mm coupo
 - Optical bottle type identification (HDPE vs. PET vs. glass)
 - Single power supply with buck converter to replace dual-adapter setup
 - Mobile app for session history and analytics
+
+---
+
+## Connect
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ishaaq42/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ishaaqdev)
 
 ---
 
