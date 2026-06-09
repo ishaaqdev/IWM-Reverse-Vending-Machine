@@ -16,6 +16,7 @@
   <div class="nav-right">
     <ul class="nav-links">
       <li><a href="#idea">Idea</a></li>
+      <li><a href="#simulator">Simulator</a></li>
       <li><a href="#tech">Tech Stack</a></li>
       <li><a href="#demo">Demo</a></li>
       <li><a href="#gallery">Gallery</a></li>
@@ -33,6 +34,7 @@
 
 <div class="mobile-nav" id="mobileNav">
   <a href="#idea" onclick="closeMobile()">Idea</a>
+  <a href="#simulator" onclick="closeMobile()">Simulator</a>
   <a href="#tech" onclick="closeMobile()">Tech Stack</a>
   <a href="#demo" onclick="closeMobile()">Demo</a>
   <a href="#gallery" onclick="closeMobile()">Gallery</a>
@@ -157,10 +159,96 @@
   </div>
 </section>
 
+<!-- 3D SIMULATOR -->
+<section id="simulator">
+  <div class="section-label">02 // Interactive 3D Simulator</div>
+  <h2 class="section-title reveal">Experience the RVM.</h2>
+  <p class="section-sub reveal">Interact with the virtual hardware: insert different objects, trigger weight/material sensors, follow conveyor operations, and print reward coupons in real-time WebGL.</p>
+
+  <div class="simulator-container reveal">
+    <!-- WebGL Canvas Container -->
+    <div class="canvas-container" id="canvas-container">
+      <!-- HUD overlays inside the canvas container -->
+      <div class="sim-overlay-hud lcd-hud">
+        <div class="lcd-title">SYSTEM LCD STATUS</div>
+        <div class="lcd-screen" id="sim-lcd-screen">
+          <div class="lcd-line" id="lcd-l1">SYSTEM READY</div>
+          <div class="lcd-line" id="lcd-l2">INSERT BOTTLE</div>
+        </div>
+      </div>
+
+      <div class="sim-overlay-hud printer-hud" id="printer-hud">
+        <div class="printer-title">THERMAL PRINTER TRAY</div>
+        <div class="printer-receipt" id="printer-receipt">
+          <div class="receipt-paper" id="receipt-paper"></div>
+        </div>
+      </div>
+
+      <div class="canvas-loading" id="canvas-loading">
+        <div class="spinner"></div>
+        <span>Initializing WebGL Scene...</span>
+      </div>
+    </div>
+
+    <!-- Simulator Control Panel -->
+    <div class="simulator-controls">
+      <div class="control-group">
+        <h3>1. Select Object to Insert</h3>
+        <div class="button-grid">
+          <button class="sim-btn btn-primary" id="btn-insert-pet">
+            <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            PET Bottle (Plastic)
+            <span class="btn-desc">Valid . 20g . Accept</span>
+          </button>
+          <button class="sim-btn btn-danger" id="btn-insert-can">
+            <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="5" y1="8" x2="19" y2="8" stroke="currentColor" stroke-width="2"/></svg>
+            Soda Can (Metal)
+            <span class="btn-desc">Invalid . 35g . Reject</span>
+          </button>
+          <button class="sim-btn btn-warning" id="btn-insert-heavy">
+            <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/></svg>
+            Wrong Bottle (Heavy)
+            <span class="btn-desc">Invalid . 60g . Reject</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h3>2. Session Operations</h3>
+        <button class="sim-btn btn-action" id="btn-end-session">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+          End Session & Print Coupon
+        </button>
+      </div>
+
+      <div class="control-group">
+        <h3>3. Cinematic Camera View</h3>
+        <div class="camera-grid">
+          <button class="cam-btn active" data-view="free">Free Orbit</button>
+          <button class="cam-btn" data-view="intake">Intake Slot</button>
+          <button class="cam-btn" data-view="conveyor">Conveyor Belt</button>
+          <button class="cam-btn" data-view="printer">Printer Tray</button>
+        </div>
+      </div>
+
+      <div class="session-stats">
+        <div class="s-stat">
+          <span class="s-val" id="sess-btl-count">0</span>
+          <span class="s-label">Bottles Recycled</span>
+        </div>
+        <div class="s-stat">
+          <span class="s-val" id="sess-credits">0</span>
+          <span class="s-label">Credits Earned</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- TECH STACK -->
 <div class="tech-section" id="tech">
   <div class="tech-inner">
-    <div class="section-label">02 // Tech Stack</div>
+    <div class="section-label">03 // Tech Stack</div>
     <h2 class="section-title reveal">Built with precision.</h2>
     <p class="section-sub reveal">Every component chosen for reliability, cost-efficiency, and real-world performance on a single ATmega328P.</p>
 
@@ -227,7 +315,7 @@
 
 <!-- DEMO VIDEO -->
 <section id="demo">
-  <div class="section-label">03 // Demo</div>
+  <div class="section-label">04 // Demo</div>
   <h2 class="section-title reveal">See it in action.</h2>
   <p class="section-sub reveal">Full demonstration of bottle acceptance, rejection, conveyor transport, and coupon printing.</p>
 
@@ -241,7 +329,7 @@
 
 <!-- GALLERY -->
 <section id="gallery">
-  <div class="section-label">04 // Gallery</div>
+  <div class="section-label">05 // Gallery</div>
   <h2 class="section-title reveal">The build.</h2>
   <p class="section-sub reveal">From concept to a fully working prototype -- every angle of the machine.</p>
 
@@ -276,7 +364,7 @@
 <!-- CIRCUIT -->
 <div class="circuit-section" id="circuit">
   <div class="circuit-inner">
-    <div class="section-label">05 // Circuit Design</div>
+    <div class="section-label">06 // Circuit Design</div>
     <h2 class="section-title reveal">Every wire mapped.</h2>
     <p class="section-sub reveal">Colour-coded schematic showing all sensor, actuator, and module connections to the Arduino Uno.</p>
 
@@ -288,7 +376,7 @@
 
 <!-- FUTURE -->
 <section id="future">
-  <div class="section-label">06 // What's Next</div>
+  <div class="section-label">07 // What's Next</div>
   <h2 class="section-title reveal">Room to grow.</h2>
   <p class="section-sub reveal">Planned improvements and future directions for the platform.</p>
 
@@ -381,6 +469,16 @@ function closeLightbox() {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 </script>
-
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <!-- GSAP for smooth camera animations -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+  <script type="module" src="src/simulator.js"></script>
 </body>
 </html>
