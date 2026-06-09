@@ -159,87 +159,22 @@
   </div>
 </section>
 
-<!-- 3D SIMULATOR -->
+<!-- 3D SIMULATOR CTA -->
 <section id="simulator">
   <div class="section-label">02 // Interactive 3D Simulator</div>
-  <h2 class="section-title reveal">Experience the RVM.</h2>
-  <p class="section-sub reveal">Interact with the virtual hardware: insert different objects, trigger weight/material sensors, follow conveyor operations, and print reward coupons in real-time WebGL.</p>
-
-  <div class="simulator-container reveal">
-    <!-- WebGL Canvas Container -->
-    <div class="canvas-container" id="canvas-container">
-      <!-- HUD overlays inside the canvas container -->
-      <div class="sim-overlay-hud lcd-hud">
-        <div class="lcd-title">SYSTEM LCD STATUS</div>
-        <div class="lcd-screen" id="sim-lcd-screen">
-          <div class="lcd-line" id="lcd-l1">SYSTEM READY</div>
-          <div class="lcd-line" id="lcd-l2">INSERT BOTTLE</div>
-        </div>
-      </div>
-
-      <div class="sim-overlay-hud printer-hud" id="printer-hud">
-        <div class="printer-title">THERMAL PRINTER TRAY</div>
-        <div class="printer-receipt" id="printer-receipt">
-          <div class="receipt-paper" id="receipt-paper"></div>
-        </div>
-      </div>
-
-      <div class="canvas-loading" id="canvas-loading">
-        <div class="spinner"></div>
-        <span>Initializing WebGL Scene...</span>
-      </div>
+  <div class="sim-cta-container reveal">
+    <div class="sim-cta-content">
+      <h2 class="section-title">Visualise the Hardware.</h2>
+      <p class="section-sub">We built a dedicated full-screen interactive 3D WebGL simulator to let you experience the Reverse Vending Machine (RVM) hardware inside and out. Virtually insert objects, inspect conveyor and sensor pipelines, and print reward coupons.</p>
+      <a href="demo.html" class="hero-cta">
+        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+        Launch 3D Simulator
+      </a>
     </div>
-
-    <!-- Simulator Control Panel -->
-    <div class="simulator-controls">
-      <div class="control-group">
-        <h3>1. Select Object to Insert</h3>
-        <div class="button-grid">
-          <button class="sim-btn btn-primary" id="btn-insert-pet">
-            <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-            PET Bottle (Plastic)
-            <span class="btn-desc">Valid . 20g . Accept</span>
-          </button>
-          <button class="sim-btn btn-danger" id="btn-insert-can">
-            <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="5" y1="8" x2="19" y2="8" stroke="currentColor" stroke-width="2"/></svg>
-            Soda Can (Metal)
-            <span class="btn-desc">Invalid . 35g . Reject</span>
-          </button>
-          <button class="sim-btn btn-warning" id="btn-insert-heavy">
-            <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/></svg>
-            Wrong Bottle (Heavy)
-            <span class="btn-desc">Invalid . 60g . Reject</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <h3>2. Session Operations</h3>
-        <button class="sim-btn btn-action" id="btn-end-session">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
-          End Session & Print Coupon
-        </button>
-      </div>
-
-      <div class="control-group">
-        <h3>3. Cinematic Camera View</h3>
-        <div class="camera-grid">
-          <button class="cam-btn active" data-view="free">Free Orbit</button>
-          <button class="cam-btn" data-view="intake">Intake Slot</button>
-          <button class="cam-btn" data-view="conveyor">Conveyor Belt</button>
-          <button class="cam-btn" data-view="printer">Printer Tray</button>
-        </div>
-      </div>
-
-      <div class="session-stats">
-        <div class="s-stat">
-          <span class="s-val" id="sess-btl-count">0</span>
-          <span class="s-label">Bottles Recycled</span>
-        </div>
-        <div class="s-stat">
-          <span class="s-val" id="sess-credits">0</span>
-          <span class="s-label">Credits Earned</span>
-        </div>
+    <div class="sim-cta-preview">
+      <div class="preview-box">
+        <div class="preview-ring"></div>
+        <div class="preview-text">INTERACTIVE WEBGL PLAYGROUND</div>
       </div>
     </div>
   </div>
@@ -469,16 +404,5 @@ function closeLightbox() {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 </script>
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-    }
-  }
-  </script>
-  <!-- GSAP for smooth camera animations -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
-  <script type="module" src="src/simulator.js"></script>
 </body>
 </html>

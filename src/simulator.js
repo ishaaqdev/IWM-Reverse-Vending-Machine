@@ -10,7 +10,8 @@ const state = {
   activeSession: true,
   isAnimating: false,
   activeView: 'free',
-  audioCtx: null
+  audioCtx: null,
+  autoCamera: true
 };
 
 // ═══════════════════════════════════════════════════════
@@ -18,8 +19,8 @@ const state = {
 // ═══════════════════════════════════════════════════════
 const container = document.getElementById('canvas-container');
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x050508);
-scene.fog = new THREE.FogExp2(0x050508, 0.02);
+scene.background = new THREE.Color(0x101116);
+scene.fog = new THREE.FogExp2(0x101116, 0.035);
 
 // Camera
 const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
@@ -38,8 +39,8 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.maxPolarAngle = Math.PI / 2 - 0.05; // don't go below ground
-controls.minDistance = 5;
-controls.maxDistance = 25;
+controls.minDistance = 4;
+controls.maxDistance = 16;
 
 // Hide Loading screen
 document.getElementById('canvas-loading').classList.add('fade-out');
@@ -47,12 +48,12 @@ document.getElementById('canvas-loading').classList.add('fade-out');
 // ═══════════════════════════════════════════════════════
 // LIGHTS
 // ═══════════════════════════════════════════════════════
-// Strong ambient fill light to make details visible
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+// Ambient fill light (cool subway tone)
+const ambientLight = new THREE.AmbientLight(0xddeeff, 0.35);
 scene.add(ambientLight);
 
-// Main directional shadow-casting light
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
+// Main directional shadow-casting light (warm spotlight)
+const dirLight = new THREE.DirectionalLight(0xfffbee, 0.55);
 dirLight.position.set(10, 15, 8);
 dirLight.castShadow = true;
 dirLight.shadow.mapSize.width = 1024;
@@ -77,25 +78,257 @@ camera.add(headlight);
 scene.add(camera); // Add camera with child headlight to the scene
 
 // ═══════════════════════════════════════════════════════
-// PROCEDURAL GEOMETRY / MACHINE MODEL
+// PROCEDURAL GEOMETRY / MACHINE MODEL (Metro Station Environment)
 // ═══════════════════════════════════════════════════════
 
-// Floor Grid & Shadow receiver
-const floorGeo = new THREE.PlaneGeometry(50, 50);
+// Texture generators
+function createTileTexture(tileColor, lineColor, size = 256, divisions = 8) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  
+  ctx.fillStyle = tileColor;
+  ctx.fillRect(0, 0, size, size);
+  
+  ctx.strokeStyle = lineColor;
+  ctx.lineWidth = 2;
+  const step = size / divisions;
+  for (let i = 0; i <= size; i += step) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, size);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.moveTo(0, i);
+    ctx.lineTo(size, i);
+    ctx.stroke();
+  }
+  
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createTactileTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  
+  ctx.fillStyle = '#ffcc00'; // Safety yellow
+  ctx.fillRect(0, 0, 64, 64);
+  
+  ctx.fillStyle = '#cca300'; // Darker yellow tactile bumps
+  for (let x = 8; x < 64; x += 16) {
+    for (let y = 8; y < 64; y += 16) {
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createSignTexture(text) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, 512, 128);
+  
+  ctx.strokeStyle = '#0a84ff';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(8, 8, 496, 112);
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 36px "Fira Code", monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 256, 64);
+  
+  const texture = new THREE.CanvasTexture(canvas);
+  return texture;
+}
+
+// Platform Floor (Metro tiles)
+const floorTexture = createTileTexture('#22222a', '#18181f', 256, 8);
+floorTexture.repeat.set(15, 6);
+const floorGeo = new THREE.PlaneGeometry(60, 24);
 const floorMat = new THREE.MeshStandardMaterial({
-  color: 0x07070a,
-  roughness: 0.9,
-  metalness: 0.1
+  map: floorTexture,
+  roughness: 0.5,
+  metalness: 0.3
 });
 const floor = new THREE.Mesh(floorGeo, floorMat);
 floor.rotation.x = -Math.PI / 2;
-floor.position.y = -4.5;
+floor.position.set(0, -4.5, 4.5);
 floor.receiveShadow = true;
 scene.add(floor);
 
-const grid = new THREE.GridHelper(50, 50, 0x1e1e2a, 0x0b0b10);
-grid.position.y = -4.49;
-scene.add(grid);
+// Yellow safety line tactile strip
+const tactileTexture = createTactileTexture();
+tactileTexture.repeat.set(60, 1);
+const safetyLineGeo = new THREE.PlaneGeometry(60, 0.8);
+const safetyLineMat = new THREE.MeshStandardMaterial({
+  map: tactileTexture,
+  roughness: 0.6
+});
+const safetyLine = new THREE.Mesh(safetyLineGeo, safetyLineMat);
+safetyLine.rotation.x = -Math.PI / 2;
+safetyLine.position.set(0, -4.49, 14.6);
+safetyLine.receiveShadow = true;
+scene.add(safetyLine);
+
+// Track Drop-off Pit
+// Drop-off Wall
+const dropOffGeo = new THREE.BoxGeometry(60, 2, 0.2);
+const concreteMat = new THREE.MeshStandardMaterial({ color: 0x33333d, roughness: 0.8 });
+const dropOff = new THREE.Mesh(dropOffGeo, concreteMat);
+dropOff.position.set(0, -5.5, 15.1);
+dropOff.receiveShadow = true;
+scene.add(dropOff);
+
+// Track Pit floor
+const trackFloorGeo = new THREE.PlaneGeometry(60, 12);
+const trackFloorMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0f, roughness: 0.9 });
+const trackFloor = new THREE.Mesh(trackFloorGeo, trackFloorMat);
+trackFloor.rotation.x = -Math.PI / 2;
+trackFloor.position.set(0, -6.5, 21);
+trackFloor.receiveShadow = true;
+scene.add(trackFloor);
+
+// Sleepers (Railroad ties)
+const sleeperGeo = new THREE.BoxGeometry(0.4, 0.2, 5.0);
+const sleeperMat = new THREE.MeshStandardMaterial({ color: 0x1d1a16, roughness: 0.9 });
+for (let x = -30; x <= 30; x += 1.8) {
+  const sleeper = new THREE.Mesh(sleeperGeo, sleeperMat);
+  sleeper.position.set(x, -6.4, 20);
+  sleeper.receiveShadow = true;
+  scene.add(sleeper);
+}
+
+// Steel Rails
+const railGeo = new THREE.BoxGeometry(60, 0.15, 0.1);
+const steelMat = new THREE.MeshStandardMaterial({ color: 0x888899, metalness: 0.9, roughness: 0.1 });
+const rail1 = new THREE.Mesh(railGeo, steelMat);
+rail1.position.set(0, -6.225, 18.5);
+rail1.castShadow = true;
+scene.add(rail1);
+
+const rail2 = new THREE.Mesh(railGeo, steelMat);
+rail2.position.set(0, -6.225, 21.5);
+rail2.castShadow = true;
+scene.add(rail2);
+
+// Back Wall (Tiled subway wall)
+const wallTexture = createTileTexture('#18181f', '#101015', 128, 4);
+wallTexture.repeat.set(12, 4);
+const wallGeo = new THREE.PlaneGeometry(60, 17);
+const wallMat = new THREE.MeshStandardMaterial({
+  map: wallTexture,
+  roughness: 0.6,
+  metalness: 0.2
+});
+const backWall = new THREE.Mesh(wallGeo, wallMat);
+backWall.position.set(0, 4, -4.5);
+backWall.receiveShadow = true;
+scene.add(backWall);
+
+// Pillars (Columns behind machine and spaced out)
+const pillarGeo = new THREE.BoxGeometry(4, 17, 3);
+const pillarTexture = createTileTexture('#282835', '#1a1a24', 128, 4);
+pillarTexture.repeat.set(1, 4);
+const pillarMat = new THREE.MeshStandardMaterial({
+  map: pillarTexture,
+  roughness: 0.5,
+  metalness: 0.3
+});
+
+// Central pillar (behind the RVM)
+const pillarCenter = new THREE.Mesh(pillarGeo, pillarMat);
+pillarCenter.position.set(0, 4, -5.9);
+pillarCenter.castShadow = true;
+pillarCenter.receiveShadow = true;
+scene.add(pillarCenter);
+
+// Left pillar
+const pillarLeft = new THREE.Mesh(pillarGeo, pillarMat);
+pillarLeft.position.set(-15, 4, -5.9);
+pillarLeft.castShadow = true;
+pillarLeft.receiveShadow = true;
+scene.add(pillarLeft);
+
+// Right pillar
+const pillarRight = new THREE.Mesh(pillarGeo, pillarMat);
+pillarRight.position.set(15, 4, -5.9);
+pillarRight.castShadow = true;
+pillarRight.receiveShadow = true;
+scene.add(pillarRight);
+
+// Backlit Station Signboard
+const signTexture = createSignTexture('INDUS METRO STATION');
+const signGeo = new THREE.PlaneGeometry(8, 2);
+const signMat = new THREE.MeshBasicMaterial({ map: signTexture, side: THREE.DoubleSide });
+const stationSign = new THREE.Mesh(signGeo, signMat);
+stationSign.position.set(0, 6, -4.38);
+scene.add(stationSign);
+
+// Metal frame for the signboard
+const signFrameGeo = new THREE.BoxGeometry(8.2, 2.2, 0.1);
+const signFrameMat = new THREE.MeshStandardMaterial({ color: 0x050508, metalness: 0.9, roughness: 0.3 });
+const signFrame = new THREE.Mesh(signFrameGeo, signFrameMat);
+signFrame.position.set(0, 6, -4.44);
+scene.add(signFrame);
+
+// Ceiling
+const ceilingGeo = new THREE.PlaneGeometry(60, 24);
+const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x18181f, roughness: 0.9 });
+const ceiling = new THREE.Mesh(ceilingGeo, ceilingMat);
+ceiling.rotation.x = Math.PI / 2;
+ceiling.position.set(0, 12, 4.5);
+ceiling.receiveShadow = true;
+scene.add(ceiling);
+
+// Ceiling Fluorescent Tube Lights
+const fixtureGeo = new THREE.BoxGeometry(3, 0.1, 0.4);
+const fixtureMat = new THREE.MeshStandardMaterial({ color: 0x33333d, metalness: 0.8 });
+const bulbGeo = new THREE.CylinderGeometry(0.06, 0.06, 2.8, 8);
+const bulbMat = new THREE.MeshBasicMaterial({ color: 0xebf3ff });
+
+const lightPositions = [
+  { x: -15, y: 11.9, z: 2 },
+  { x: 0, y: 11.9, z: 2 },
+  { x: 15, y: 11.9, z: 2 },
+  { x: -15, y: 11.9, z: 9 },
+  { x: 0, y: 11.9, z: 9 },
+  { x: 15, y: 11.9, z: 9 }
+];
+
+lightPositions.forEach((pos, idx) => {
+  const fixture = new THREE.Mesh(fixtureGeo, fixtureMat);
+  fixture.position.set(pos.x, pos.y, pos.z);
+  scene.add(fixture);
+  
+  const bulb = new THREE.Mesh(bulbGeo, bulbMat);
+  bulb.rotation.z = Math.PI / 2;
+  bulb.position.set(pos.x, pos.y - 0.08, pos.z);
+  scene.add(bulb);
+  
+  const pointLight = new THREE.PointLight(0xe6f0ff, 1.2, 18, 1.5);
+  pointLight.position.set(pos.x, pos.y - 0.3, pos.z);
+  pointLight.castShadow = (idx % 2 === 0);
+  pointLight.shadow.bias = -0.002;
+  scene.add(pointLight);
+});
 
 // Create the RVM Machine Group
 const rvmGroup = new THREE.Group();
@@ -509,7 +742,7 @@ function playSingleBeep(freq, duration, startTime) {
 const cameraViews = {
   free: { pos: { x: 13, y: 9, z: 14 }, tar: { x: 0, y: 0, z: 0 } },
   intake: { pos: { x: -3, y: 3.5, z: 8 }, tar: { x: -1.5, y: 2.2, z: 3.0 } },
-  conveyor: { pos: { x: 2, y: 4.5, z: 4 }, tar: { x: -0.5, y: 1.2, z: 0.5 } },
+  conveyor: { pos: { x: 5, y: 2.2, z: 0 }, tar: { x: 0, y: 1.2, z: 0 } },
   printer: { pos: { x: 3.2, y: 1.8, z: 6.5 }, tar: { x: 1.4, y: 1.4, z: 3.0 } }
 };
 
@@ -682,7 +915,9 @@ function triggerRejectionSequence(bottle, errorType) {
               scene.remove(bottle);
               state.isAnimating = false;
               updateLcd('SYSTEM READY', 'INSERT BOTTLE');
-              transitionCamera('free');
+              if (state.autoCamera) {
+                transitionCamera('free');
+              }
             }
           });
         }
@@ -712,7 +947,9 @@ function triggerAcceptanceSequence(bottle) {
       ledGreenMat.emissiveIntensity = 0.1;
       
       // Conveyor forward sequence
-      transitionCamera('conveyor');
+      if (state.autoCamera) {
+        transitionCamera('conveyor');
+      }
       
       gsap.timeline()
         .to(bottle.position, {
@@ -766,7 +1003,9 @@ function triggerAcceptanceSequence(bottle) {
                       setTimeout(() => {
                         if (!state.isAnimating) {
                           updateLcd('SYSTEM READY', 'INSERT BOTTLE');
-                          transitionCamera('free');
+                          if (state.autoCamera) {
+                            transitionCamera('free');
+                          }
                         }
                       }, 1200);
                     }
@@ -796,7 +1035,9 @@ function insertObject(type) {
   state.isAnimating = true;
   
   // Transition camera to zoom in on intake
-  transitionCamera('intake');
+  if (state.autoCamera) {
+    transitionCamera('intake');
+  }
   
   // Spawn bottle mesh
   const bottle = createBottleMesh(type);
@@ -849,7 +1090,9 @@ function endSession() {
   gsap.timeline()
     .to(physicalButton.position, { z: 3.10, duration: 0.15, yoyo: true, repeat: 1 });
   
-  transitionCamera('printer');
+  if (state.autoCamera) {
+    transitionCamera('printer');
+  }
   updateLcd('PRINTING COUPON', 'THANK YOU!');
   playBuzzerBeep('print');
   
@@ -875,7 +1118,9 @@ function endSession() {
         state.activeSession = true;
         state.isAnimating = false;
         
-        transitionCamera('free');
+        if (state.autoCamera) {
+          transitionCamera('free');
+        }
       }, 5000);
     }
   })
@@ -946,6 +1191,15 @@ document.getElementById('btn-insert-pet').addEventListener('click', () => insert
 document.getElementById('btn-insert-can').addEventListener('click', () => insertObject('can'));
 document.getElementById('btn-insert-heavy').addEventListener('click', () => insertObject('heavy'));
 document.getElementById('btn-end-session').addEventListener('click', endSession);
+
+// Attach auto-track camera toggle
+const chkAutoCam = document.getElementById('chk-auto-cam');
+if (chkAutoCam) {
+  state.autoCamera = chkAutoCam.checked;
+  chkAutoCam.addEventListener('change', (e) => {
+    state.autoCamera = e.target.checked;
+  });
+}
 
 // ═══════════════════════════════════════════════════════
 // ANIMATE LOOP & RESPONSIVENESS

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IWM RVM -- 3D Simulator</title>
+<meta name="description" content="Dedicated 3D hardware WebGL simulator for the IWM Reverse Vending Machine.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  body {
+    background: #050508;
+    color: #e0e0ee;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+  
+  /* Header Nav override */
+  .sim-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(12, 12, 18, 0.6);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #1e1e2a;
+  }
+  
+  .sim-nav-logo {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #0a84ff;
+    letter-spacing: 0.1em;
+  }
+  
+  .btn-back {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid #1e1e2a;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    color: #6b6b7e;
+    transition: all 0.2s;
+  }
+  
+  .btn-back:hover {
+    color: #e0e0ee;
+    border-color: #0a84ff;
+    background: rgba(10, 132, 255, 0.08);
+  }
+  
+  /* Split layout */
+  .sim-workspace {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    height: calc(100vh - 56px);
+  }
+  
+  .sim-viewport {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background: #030305;
+  }
+  
+  .sim-controls-panel {
+    background: #0c0c12;
+    border-left: 1px solid #1e1e2a;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 56px);
+  }
+  
+  .sim-controls-panel h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    color: #e0e0ee;
+    margin-bottom: 0.2rem;
+  }
+  
+  .sim-controls-panel p {
+    font-size: 0.72rem;
+    color: #6b6b7e;
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+  }
+  
+  /* Toggle Switch */
+  .toggle-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.01);
+    border: 1px solid #1e1e2a;
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .toggle-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  
+  .toggle-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #e0e0ee;
+  }
+  
+  .toggle-desc {
+    font-size: 0.65rem;
+    color: #6b6b7e;
+  }
+  
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+  
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #1e1e2a;
+    transition: .3s;
+    border-radius: 22px;
+    border: 1px solid #2e2e3e;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #6b6b7e;
+    transition: .3s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+    background-color: rgba(10, 132, 255, 0.25);
+    border-color: #0a84ff;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(22px);
+    background-color: #0a84ff;
+  }
+  
+  /* Adjusting height and sizing for full viewport */
+  .canvas-container {
+    height: 100%;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  
+  @media (max-width: 900px) {
+    .sim-workspace {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr 1fr;
+      height: auto;
+    }
+    .sim-controls-panel {
+      border-left: none;
+      border-top: 1px solid #1e1e2a;
+      max-height: none;
+    }
+    .sim-viewport {
+      height: 450px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="sim-nav">
+  <div class="sim-nav-logo">IWM // Reverse Vending Machine Simulator</div>
+  <a href="index.html" class="btn-back">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to Project
+  </a>
+</header>
+
+<div class="sim-workspace">
+  <!-- 3D WebGL Viewport -->
+  <div class="sim-viewport">
+    <div class="canvas-container" id="canvas-container">
+      <!-- HUD overlays inside the canvas container -->
+      <div class="sim-overlay-hud lcd-hud">
+        <div class="lcd-title">SYSTEM LCD STATUS</div>
+        <div class="lcd-screen" id="sim-lcd-screen">
+          <div class="lcd-line" id="lcd-l1">SYSTEM READY</div>
+          <div class="lcd-line" id="lcd-l2">INSERT BOTTLE</div>
+        </div>
+      </div>
+
+      <div class="sim-overlay-hud printer-hud" id="printer-hud">
+        <div class="printer-title">THERMAL PRINTER TRAY</div>
+        <div class="printer-receipt" id="printer-receipt">
+          <div class="receipt-paper" id="receipt-paper"></div>
+        </div>
+      </div>
+
+      <div class="canvas-loading" id="canvas-loading">
+        <div class="spinner"></div>
+        <span>Initializing WebGL Scene...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Control HUD Panel -->
+  <div class="sim-controls-panel">
+    <div>
+      <h2>RVM Control Dashboard</h2>
+      <p>Click options below to spawn test containers, inspect hardware sensors, and trigger the print coupon routine.</p>
+    </div>
+
+    <!-- Toggle for Auto Camera Movement -->
+    <div class="toggle-container">
+      <div class="toggle-label">
+        <span class="toggle-title">Auto-Track Camera</span>
+        <span class="toggle-desc">Auto zooms/pans focus on active sensors</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="chk-auto-cam" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Interactive Inputs -->
+    <div class="control-group">
+      <h3>1. Select Object to Insert</h3>
+      <div class="button-grid">
+        <button class="sim-btn btn-primary" id="btn-insert-pet">
+          <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          <div>
+            PET Bottle (Plastic)
+            <span class="btn-desc">Valid . 20g . Accept</span>
+          </div>
+        </button>
+        <button class="sim-btn btn-danger" id="btn-insert-can">
+          <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="5" y1="8" x2="19" y2="8" stroke="currentColor" stroke-width="2"/></svg>
+          <div>
+            Soda Can (Metal)
+            <span class="btn-desc">Invalid . 35g . Reject</span>
+          </div>
+        </button>
+        <button class="sim-btn btn-warning" id="btn-insert-heavy">
+          <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/></svg>
+          <div>
+            Wrong Bottle (Heavy)
+            <span class="btn-desc">Invalid . 60g . Reject</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Session Control -->
+    <div class="control-group">
+      <h3>2. Session Operations</h3>
+      <button class="sim-btn btn-action" id="btn-end-session">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+        End Session & Print Coupon
+      </button>
+    </div>
+
+    <!-- Camera angles -->
+    <div class="control-group">
+      <h3>3. Cinematic Camera View</h3>
+      <div class="camera-grid">
+        <button class="cam-btn active" data-view="free">Free Orbit</button>
+        <button class="cam-btn" data-view="intake">Intake Slot</button>
+        <button class="cam-btn" data-view="conveyor">Conveyor Belt</button>
+        <button class="cam-btn" data-view="printer">Printer Tray</button>
+      </div>
+    </div>
+
+    <!-- Session stats counters -->
+    <div class="session-stats">
+      <div class="s-stat">
+        <span class="s-val" id="sess-btl-count">0</span>
+        <span class="s-label">Bottles Recycled</span>
+      </div>
+      <div class="s-stat">
+        <span class="s-val" id="sess-credits">0</span>
+        <span class="s-label">Credits Earned</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<!-- GSAP for smooth animations -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+<script type="module" src="src/simulator.js"></script>
+
+</body>
+</html>
