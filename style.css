@@ -809,3 +809,120 @@ footer {
   }
 }
 
+/* 3D SIMULATOR CTA SECTION */
+.sim-cta-container {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3.5rem;
+  align-items: center;
+  margin-top: 2.5rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.sim-cta-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -25%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(10, 132, 255, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.sim-cta-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.sim-cta-content .section-title {
+  margin-bottom: 1rem;
+}
+
+.sim-cta-content .section-sub {
+  margin-bottom: 2rem;
+  max-width: 100%;
+}
+
+.sim-cta-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.preview-box {
+  background: rgba(5, 5, 8, 0.4);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 100%;
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+.preview-ring {
+  width: 50px;
+  height: 50px;
+  border: 2px dashed var(--accent);
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: rotateRing 4s linear infinite;
+  position: relative;
+}
+
+.preview-ring::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 2px dashed var(--accent2);
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: rotateRingInner 2s linear infinite reverse;
+}
+
+@keyframes rotateRing {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotateRingInner {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.preview-text {
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.2em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .sim-cta-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem;
+  }
+  
+  .preview-box {
+    height: 200px;
+  }
+}
+
