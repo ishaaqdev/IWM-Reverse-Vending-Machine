@@ -47,11 +47,12 @@ document.getElementById('canvas-loading').classList.add('fade-out');
 // ═══════════════════════════════════════════════════════
 // LIGHTS
 // ═══════════════════════════════════════════════════════
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.15);
+// Strong ambient fill light to make details visible
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
 scene.add(ambientLight);
 
-// Directional shadow light
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+// Main directional shadow-casting light
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
 dirLight.position.set(10, 15, 8);
 dirLight.castShadow = true;
 dirLight.shadow.mapSize.width = 1024;
@@ -59,10 +60,21 @@ dirLight.shadow.mapSize.height = 1024;
 dirLight.shadow.bias = -0.001;
 scene.add(dirLight);
 
-// Emissive spotlight for the machine inside
-const interiorSpot = new THREE.SpotLight(0x64d2ff, 4, 15, Math.PI / 3, 0.5, 1);
-interiorSpot.position.set(0, 4, 0);
+// Emissive spotlight inside the machine enclosure
+const interiorSpot = new THREE.SpotLight(0x64d2ff, 5, 15, Math.PI / 3, 0.5, 1);
+interiorSpot.position.set(0, 3, 0);
 scene.add(interiorSpot);
+
+// Front spot light to illuminate the front panel (LCD, buttons, slot)
+const frontLight = new THREE.SpotLight(0xffffff, 6, 20, Math.PI / 4, 0.4, 1);
+frontLight.position.set(0, 5, 8);
+frontLight.target.position.set(0, 0, 0);
+scene.add(frontLight);
+
+// Camera-attached headlight: follows camera angle so face being viewed is always lit
+const headlight = new THREE.DirectionalLight(0xffffff, 0.65);
+camera.add(headlight);
+scene.add(camera); // Add camera with child headlight to the scene
 
 // ═══════════════════════════════════════════════════════
 // PROCEDURAL GEOMETRY / MACHINE MODEL
@@ -531,7 +543,8 @@ function transitionCamera(viewName) {
     duration: 1.5,
     ease: 'power2.inOut',
     onComplete: () => {
-      controls.enabled = (viewName === 'free');
+      // Keep controls enabled always so user can rotate/zoom camera after transition
+      controls.enabled = true;
     }
   });
 }
